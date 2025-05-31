@@ -27,20 +27,7 @@ provider:
         - lambda:InvokeFunction
       Resource:
         - arn:aws:lambda:${opt:region, 'ap-southeast-1'}:*:function:* # Allow invocation of any Lambda function
-    - Effect: Allow
-      Action:
-        - secretsmanager:GetSecretValue
-      Resource:
-        - arn:aws:secretsmanager:${self:provider.region}:*:secret:/hrforce/${self:provider.stage}/*
-    - Effect: Allow
-      Action:
-        - ssm:GetParameter
-        - ssm:GetParameters
-        - ssm:GetParametersByPath
-        - ssm:PutParameter
-        - ssm:DeleteParameter
-      Resource:
-        - arn:aws:ssm:${self:provider.region}:*:parameter/hrforce/${self:provider.stage}/*
+
 plugins:
   - serverless-python-requirements
 
@@ -84,25 +71,29 @@ functions:
       # FIXME: Add more environment here if any for DevOps to configure
 
 resources:
-  # Resources:
-  #   JobsSQSQueue:
-  #     Type: AWS::SQS::Queue
-  #     Properties:
-  #       QueueName: jobsapi-${self:provider.stage}-sqs-queue # OR jobsapi-dev-sqs-message-queue
-  #     Condition: CreateQueueCondition
+  Resources:
+    BlogSQSQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.sqsQueueName}
+        VisibilityTimeout: 60
+        MessageRetentionPeriod: 1209600 # 14 days in seconds
 
-  # Conditions:
-  #   CreateQueueCondition:
-  #     Fn::Equals: [ !Ref ExistingQueueArn, ""]
-
-  # Outputs:
-  #   ExistingQueueArn:
-  #     Value: !GetAtt JobsSQSQueue.Arn
+  Outputs:
+    BlogQueueArn:
+      Value: !GetAtt BlogSQSQueue.Arn
+      Export:
+        Name: ${self:provider.stage}-${self:service}-queue-arn
+    BlogQueueUrl:
+      Value: !Ref BlogSQSQueue
+      Export:
+        Name: ${self:provider.stage}-${self:service}-queue-url
 
 custom:
   pythonRequirements:
     usePoetry: true
     dockerizePip: false
+    pythonBin: python3 # This will use whatever python3 is in your PATH
   region: ap-southeast-1
   primaryQueueName: blog-queue-primary-queue
   sqsQueueName: blog-sqs-queue
