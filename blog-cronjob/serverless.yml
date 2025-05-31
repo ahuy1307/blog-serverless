@@ -1,0 +1,109 @@
+service: blog-cronjob
+
+provider:
+  name: aws
+  runtime: python3.11
+  timeout: 30 # Increase the timeout if necessary
+  region: ${opt:region, self:custom.region} # Default region is ap-southeast-1 if not specified
+  stage: ${opt:stage, 'dev'} # Default stage is dev if not specified
+  # deploymentBucket:
+  #   name: serverless-framework-deployments-ap-southeast-1-5c43f94a-3e0f
+  iamRoleStatements:
+    - Effect: Allow # Allow assign lambda into VPC
+      Action:
+        - ec2:CreateNetworkInterface
+        - ec2:DescribeNetworkInterfaces
+        - ec2:DeleteNetworkInterface
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:ReceiveMessage
+        - sqs:DeleteMessage
+        - sqs:GetQueueAttributes
+      Resource: arn:aws:sqs:${self:custom.region}:${aws:accountId}:${self:custom.sqsQueueName}
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource:
+        - arn:aws:lambda:${opt:region, 'ap-southeast-1'}:*:function:* # Allow invocation of any Lambda function
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource:
+        - arn:aws:secretsmanager:${self:provider.region}:*:secret:/hrforce/${self:provider.stage}/*
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+        - ssm:GetParameters
+        - ssm:GetParametersByPath
+        - ssm:PutParameter
+        - ssm:DeleteParameter
+      Resource:
+        - arn:aws:ssm:${self:provider.region}:*:parameter/hrforce/${self:provider.stage}/*
+plugins:
+  - serverless-python-requirements
+
+package:
+  exclude:
+    - node_modules/**
+    - .venv/**
+    - pytest_cache/**
+    - __pycache__/**
+    - .serverless/**
+    - tests/**
+    - docs/**
+    - deploy/**
+    - .git/**
+    - .github/**
+    - .gitignore
+    - README.md
+    - package-lock.json
+    - package.json
+    - .DS_Store
+    - emails/**
+    - .env.template
+    - .aws-sam/**
+
+functions:
+  blogHandler:
+    handler: main.lambda_handler
+    logRetentionInDays: 14 # Set log retention to 14 days
+    events:
+      - schedule:
+          name: ${self:provider.stage}-daily-task-rule
+          description: "<jobs-cronjob> Trigger Lambda for daily tasks at 12AM Vietnam time"
+          enabled: true
+          rate: cron(0 17 * * ? *) # 5:00 PM UTC = 12:00 AM Vietnam time
+          input:
+            EVENT_TYPE: "DAILY_TASK"
+    environment:
+      CELERY_BROKER_URL: sqs://
+      MESSAGE_QUEUE_URL: ${self:custom.blogQueueUrl}
+      MESSAGE_QUEUE_NAME: ${self:custom.primaryQueueName}
+      # FIXME: Add more environment here if any for DevOps to configure
+
+resources:
+  # Resources:
+  #   JobsSQSQueue:
+  #     Type: AWS::SQS::Queue
+  #     Properties:
+  #       QueueName: jobsapi-${self:provider.stage}-sqs-queue # OR jobsapi-dev-sqs-message-queue
+  #     Condition: CreateQueueCondition
+
+  # Conditions:
+  #   CreateQueueCondition:
+  #     Fn::Equals: [ !Ref ExistingQueueArn, ""]
+
+  # Outputs:
+  #   ExistingQueueArn:
+  #     Value: !GetAtt JobsSQSQueue.Arn
+
+custom:
+  pythonRequirements:
+    usePoetry: true
+    dockerizePip: false
+  region: ap-southeast-1
+  primaryQueueName: blog-queue-primary-queue
+  sqsQueueName: blog-sqs-queue
+  blogQueueUrl: https://sqs.${self:custom.region}.amazonaws.com/${aws:accountId}/${self:custom.sqsQueueName}

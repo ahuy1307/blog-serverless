@@ -1,0 +1,21 @@
+{
+    "name": "blog-cronjob",
+    "version": "1.0.0",
+    "description": "Cronjob service for Blog Suyndy",
+    "main": "index.js",
+    "scripts": {
+        "init": "nvm use 20 && npm install -g serverless && npm install",
+        "login": "serverless login",
+        "prod": "serverless deploy --stage prod",
+        "dev": "serverless deploy --stage dev --verbose",
+        "remove": "serverless remove"
+    },
+    "dependencies": {
+        "puppeteer": "^23.3.0",
+        "serverless": "^3.0.0",
+        "serverless-python-requirements": "^5.1.0",
+        "serverless-wsgi": "^1.7.8"
+    },
+    "author": "Anh Huy <phamanhhuy22@gmail.com>",
+    "license": "MIT"
+}

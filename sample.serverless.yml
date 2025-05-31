@@ -1,0 +1,35 @@
+service: cronjob
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: ${opt:region, 'ap-southeast-1'}  # Default region is ap-southeast-1 if not specified
+  stage: ${opt:stage, 'dev'}  # Default stage is dev if not specified
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: arn:aws:dynamodb:${opt:region, 'ap-southeast-1'}:*:table/MyTable-${self:provider.stage}
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:ReceiveMessage
+        - sqs:DeleteMessage
+        - sqs:GetQueueAttributes
+      Resource: arn:aws:sqs:${opt:region, 'ap-southeast-1'}:*:MyQueue-${self:provider.stage}
+
+functions:
+  myLambdaFunction:
+    handler: handler.myHandler
+    environment:
+      MY_ENV_VAR: "my-value"
+      ANOTHER_ENV_VAR: "another-value"
+
+resources:
+  Resources:
+    # Define AWS resources here
