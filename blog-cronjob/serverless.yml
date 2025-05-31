@@ -95,7 +95,7 @@ resources:
 
 custom:
   pythonRequirements:
-    usePoetry: true
+    usePoetry: false # Changed from true to false to avoid using poetry export
     dockerizePip: false
     pythonBin: python3 # This will use whatever python3 is in your PATH
   region: ap-southeast-1
