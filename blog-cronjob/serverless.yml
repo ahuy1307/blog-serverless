@@ -3,7 +3,7 @@ service: blog-cronjob
 # Add Serverless Dashboard configuration
 org: suyndy
 app: blog
-
+# AKHZup6apfKsEEiPFcEheBB9v0jGGBqadu2O9bEMBdjiE
 provider:
   name: aws
   runtime: python3.11
