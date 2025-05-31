@@ -1,5 +1,9 @@
 service: blog-cronjob
 
+# Add Serverless Dashboard configuration
+org: suyndy
+app: blog
+
 provider:
   name: aws
   runtime: python3.11
@@ -59,7 +63,7 @@ functions:
     events:
       - schedule:
           name: ${self:provider.stage}-daily-task-rule
-          description: "<jobs-cronjob> Trigger Lambda for daily tasks at 12AM Vietnam time"
+          description: "<blog-cronjob> Trigger Lambda for daily tasks at 12AM Vietnam time"
           enabled: true
           rate: cron(0 17 * * ? *) # 5:00 PM UTC = 12:00 AM Vietnam time
           input:
