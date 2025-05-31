@@ -60,7 +60,13 @@ jobs:
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
           cd blog-cronjob
-          serverless login --provider-credentials-token $SERVERLESS_ACCESS_KEY
+          echo "Serverless version:"
+          serverless --version
+          echo "Access key length: ${#SERVERLESS_ACCESS_KEY} characters"
+          echo "Access key first 4 chars: ${SERVERLESS_ACCESS_KEY:0:4}..."
+          # Use the correct login method for Serverless
+          npx serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY
+          echo "SERVERLESS_ACCESS_KEY=$SERVERLESS_ACCESS_KEY" >> $GITHUB_ENV
 
       - name: Deploy with Serverless
         env:
