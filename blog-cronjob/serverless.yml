@@ -70,7 +70,7 @@ functions:
             EVENT_TYPE: "DAILY_TASK"
     environment:
       CELERY_BROKER_URL: sqs://
-      MESSAGE_QUEUE_URL: ${self:custom.blogQueueUrl}
+      MESSAGE_QUEUE_URL: ${self:custom.sqsQueueName}
       MESSAGE_QUEUE_NAME: ${self:custom.primaryQueueName}
       # FIXME: Add more environment here if any for DevOps to configure
 
