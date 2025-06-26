@@ -65,13 +65,13 @@ functions:
           name: ${self:provider.stage}-daily-task-rule
           description: "<blog-cronjob> Trigger Lambda for daily tasks at 12AM Vietnam time"
           enabled: true
-          rate: cron(0 15 * * ? *) # 3:00 PM UTC = 10:00 PM Vietnam time
+          rate: cron(0 16 * * ? *) # 4:00 PM UTC = 11:00 PM Vietnam time
           input:
             EVENT_TYPE: "DAILY_TASK"
     environment:
       CELERY_BROKER_URL: sqs://
-      MESSAGE_QUEUE_URL: ${self:custom.sqsQueueName}
-      MESSAGE_QUEUE_NAME: ${self:custom.primaryQueueName}
+      MESSAGE_QUEUE_URL: ${self:custom.blogQueueUrl}
+      MESSAGE_QUEUE_NAME: ${self:custom.sqsQueueName}
       # FIXME: Add more environment here if any for DevOps to configure
 
 resources:
@@ -99,6 +99,5 @@ custom:
     dockerizePip: false
     pythonBin: python3 # This will use whatever python3 is in your PATH
   region: ap-southeast-1
-  primaryQueueName: blog-queue-primary-queue
   sqsQueueName: blog-sqs-queue
   blogQueueUrl: https://sqs.${self:custom.region}.amazonaws.com/${aws:accountId}/${self:custom.sqsQueueName}
