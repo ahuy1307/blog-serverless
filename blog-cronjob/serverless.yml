@@ -65,7 +65,7 @@ functions:
           name: ${self:provider.stage}-daily-task-rule
           description: "<blog-cronjob> Trigger Lambda for daily tasks at 12AM Vietnam time"
           enabled: true
-          rate: cron(0 17 * * ? *) # 5:00 PM UTC = 12:00 AM Vietnam time
+          rate: cron(0 15 * * ? *) # 3:00 PM UTC = 10:00 PM Vietnam time
           input:
             EVENT_TYPE: "DAILY_TASK"
     environment:
