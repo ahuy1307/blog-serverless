@@ -71,4 +71,4 @@ jobs:
           # Sử dụng input stage nếu được kích hoạt thủ công, nếu không thì dùng 'dev'
           STAGE=${{ github.event.inputs.stage || 'dev' }}
           echo "Deploying to $STAGE environment"
-          serverless deploy --stage $STAGE --verbose # Thêm --verbose để xem log chi tiết hơn
+          sls deploy

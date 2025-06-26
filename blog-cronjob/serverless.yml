@@ -65,7 +65,7 @@ functions:
           name: ${self:provider.stage}-daily-task-rule
           description: "<blog-cronjob> Trigger Lambda for daily tasks at 12AM Vietnam time"
           enabled: true
-          rate: cron(0 16 * * ? *) # 4:00 PM UTC = 11:00 PM Vietnam time
+          rate: cron(5 16 * * ? *) # 4:00 PM UTC = 11:00 PM Vietnam time
           input:
             EVENT_TYPE: "DAILY_TASK"
     environment:
@@ -95,7 +95,7 @@ resources:
 
 custom:
   pythonRequirements:
-    usePoetry: false # Changed from true to false to avoid using poetry export
+    usePoetry: true # Changed from true to false to avoid using poetry export
     dockerizePip: false
     pythonBin: python3 # This will use whatever python3 is in your PATH
   region: ap-southeast-1
